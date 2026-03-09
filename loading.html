@@ -16,13 +16,52 @@
             background-color: #ffffff;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             overflow: hidden;
-            transition: opacity 0.8s ease-out; /* For the final fade out */
+            transition: opacity 0.8s ease-out;
         }
 
+        /* Start Screen Styling */
+        #start-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            transition: opacity 0.5s ease;
+        }
+
+        #start-button {
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid #eeeeee;
+            color: #888;
+            font-size: 13px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        #start-button:hover {
+            border-color: #333;
+            color: #333;
+            letter-spacing: 6px;
+            background: #fafafa;
+        }
+
+        /* Main Content (Initially hidden) */
         .container {
             text-align: center;
             width: 85%;
             max-width: 500px;
+            display: none; /* Hidden until button click */
+            opacity: 0;
+            transition: opacity 1s ease-in;
         }
 
         .loading-gif {
@@ -68,11 +107,15 @@
 </head>
 <body id="page-body">
 
-    <audio id="loading-audio" autoplay loop>
-        <source src="https://audio.jukehost.co.uk/PZHnXLH8ZQu6YZ8zplZON3bpx34MsEa7" type="audio/mpeg">
+    <div id="start-container">
+        <button id="start-button" onclick="initiateLoad()">Start</button>
+    </div>
+
+    <audio id="loading-audio" loop>
+        <source src="LoadingSong.mp3" type="audio/mpeg">
     </audio>
 
-    <div class="container">
+    <div class="container" id="main-content">
         <img src="https://uploads.onecompiler.io/446grdp2h/44fseqqbf/GlunkyLoad.gif" alt="Loading" class="loading-gif">
         
         <div class="progress-container">
@@ -87,14 +130,34 @@
         const percentageText = document.getElementById('percentage-text');
         const audio = document.getElementById('loading-audio');
         const body = document.getElementById('page-body');
+        const startScreen = document.getElementById('start-container');
+        const mainContent = document.getElementById('main-content');
         
-        // Target page set to glunky.html
         const nextURL = "glunky.html"; 
-        
         let progress = 0;
 
+        function initiateLoad() {
+            // Hide the start button screen
+            startScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+                
+                // Show the loading content
+                mainContent.style.display = 'block';
+                setTimeout(() => {
+                    mainContent.style.opacity = '1';
+                }, 50);
+
+                // Play music (now allowed by browser)
+                audio.play().catch(e => console.error("Playback failed:", e));
+
+                // Start the stuttering bar
+                runLoadingStutter();
+            }, 500);
+        }
+
         function runLoadingStutter() {
-            // Random jump between 1 and 15%
             let jump = Math.floor(Math.random() * 15) + 1;
             progress += jump;
 
@@ -104,24 +167,17 @@
             percentageText.innerText = progress + '%';
 
             if (progress < 100) {
-                // Random realistic "stutter" delay
                 let stutterTime = Math.floor(Math.random() * 1500) + 300;
                 setTimeout(runLoadingStutter, stutterTime);
             } else {
-                // Wait at 100%, then fade out and redirect
                 setTimeout(() => {
-                    body.style.opacity = '0'; // Trigger the CSS transition
+                    body.style.opacity = '0';
                     setTimeout(() => {
                         window.location.href = nextURL;
-                    }, 800); // Wait for fade to finish
+                    }, 800);
                 }, 1200);
             }
         }
-
-        window.onload = () => {
-            audio.play().catch(() => console.log("Autoplay blocked."));
-            runLoadingStutter();
-        };
     </script>
 </body>
 </html>
