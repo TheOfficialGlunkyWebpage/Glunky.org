@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glunky.org</title>
+    
+    <link rel="icon" type="image/png" href="Glunky.png">
+
+    <style id="ds">
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+        #shield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; cursor: default; }
+    </style>
+</head>
+<body id="b" oncontextmenu="return false;" onkeydown="return false;">
+
+    <div id="shield"></div>
+    <div id="c"></div>
+
+    <script>
+        const k = 'gl_status';
+        const c = document.getElementById('c');
+        const b = document.getElementById('b');
+        const s = document.getElementById('ds');
+
+        // Keep the console clean
+        setInterval(() => { console.clear(); }, 50);
+
+        if (localStorage.getItem(k)) {
+            /* REDIRECT STATE: 
+               If they have already seen the intro, immediately send them away.
+            */
+            window.location.href = "loading.html";
+        } else {
+            /* SCARY STATE: First visit only */
+            localStorage.setItem(k, '1');
+
+            // Encoded Text
+            const d1 = "SXQgaGFzIGJlZW4gcmVwb3J0ZWQgdGhhdCBzb21lIHZpY3RpbXMgb2YgdG9ydHVyZSwgZHVyaW5nIHRoZSBhY3QsIHdvdWxkIHJldHJlYXQgaW50byBhIGZhbnRhc3kgd29ybGQgZnJvbSB3aGljaCB0aGV5IGNvdWxkIG5vdCB3YWtlIHVwLiBJbiB0aGlzIGNhdGF0b25pYyBzdGF0ZSwgdGhlIHZpY3RpbSBsaXZlZCBpbiBhIHdvcmxkIGp1c3QgbGlrZSB0aGVpciBub3JtYWwgb25lLCBleGNlcHQgdGhleSB3ZXJlbid0IGJlaW5nIHRvcnR1cmVkLiA8YnI+PGJyPlRoZSBvbmx5IHdheSB0aGF0IHRoZXkgcmVhbGl6ZWQgdGhleSBuZWVkZWQgdG8gd2FrZSB1cCB3YXMgYSBub3RlIGZvdW5kIGluIHRoZWlyIGZhbnRhc3kgd29ybGQgd2hpY2ggd291bGQgdGVsbCB0aGVtIGFib3V0IHRoZWlyIGNvbmRpdGlvbi4gRXZlbiB0aGVuLCBpdCB3b3VsZCBvZnRlbiB0YWtlIG1vbnRocyBiZWZvcmUgdGhleSB3ZXJlIHJlYWR5IHRvIGRpc2NhcmQgdGhlaXIgZmFudGFzeSB3b3JsZCBhbmQg";
+            const d2 = "cGxlYXNlIHdha2UgdXAu";
+
+            s.innerHTML += `
+                body { background: #050505; color: #d1d1d1; font-family: monospace; display: flex; justify-content: center; align-items: center; user-select: none; -webkit-user-select: none; animation: fl 0.15s infinite; }
+                .w { max-width: 600px; padding: 20px; pointer-events: none; }
+                .f { animation: f2b 60s ease-in forwards; animation-delay: 5s; }
+                .h { color: #fff; font-weight: bold; animation: f_h 75s ease-in forwards; animation-delay: 5s; }
+                @keyframes f2b { 0% { opacity: 1; } 100% { opacity: 0; } }
+                @keyframes f_h { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+                @keyframes fl { 0% { opacity: 0.98; } 100% { opacity: 1; } }
+            `;
+
+            c.innerHTML = `<div class="w"><p class="f">${atob(d1)}<span class="h">${atob(d2)}</span></p></div>`;
+
+            // When the timer ends, redirect to the next page
+            setTimeout(() => { 
+                window.location.href = "loading.html";
+            }, 80000);
+        }
+    </script>
+</body>
+</html>
