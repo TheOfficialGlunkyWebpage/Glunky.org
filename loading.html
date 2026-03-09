@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+            transition: opacity 0.8s ease-out; /* For the final fade out */
+        }
+
+        .container {
+            text-align: center;
+            width: 85%;
+            max-width: 500px;
+        }
+
+        .loading-gif {
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            margin-bottom: 60px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.03));
+        }
+
+        /* Glassy Loading Bar Track */
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 50px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* The Animated Bar */
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f8f8f8 0%, #7a7a7a 100%);
+            border-radius: 50px;
+            transition: width 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .percentage {
+            margin-top: 25px;
+            font-size: 11px;
+            color: #cccccc;
+            font-weight: 500;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body id="page-body">
+
+    <audio id="loading-audio" autoplay loop>
+        <source src="https://www.dropbox.com/scl/fi/4i2mm016rbzpu9k1xq9qj/LoadingSong.mp3?rlkey=r44esa4p2dx1pjik0v0vhpbff&st=ut449auh&dl=1" type="audio/mpeg">
+    </audio>
+
+    <div class="container">
+        <img src="https://uploads.onecompiler.io/446grdp2h/44fseqqbf/GlunkyLoad.gif" alt="Loading" class="loading-gif">
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="percentage" id="percentage-text">0%</div>
+    </div>
+
+    <script>
+        const progressBar = document.getElementById('progress-bar');
+        const percentageText = document.getElementById('percentage-text');
+        const audio = document.getElementById('loading-audio');
+        const body = document.getElementById('page-body');
+        
+        // Target page set to glunky.html
+        const nextURL = "glunky.html"; 
+        
+        let progress = 0;
+
+        function runLoadingStutter() {
+            // Random jump between 1 and 15%
+            let jump = Math.floor(Math.random() * 15) + 1;
+            progress += jump;
+
+            if (progress > 100) progress = 100;
+
+            progressBar.style.width = progress + '%';
+            percentageText.innerText = progress + '%';
+
+            if (progress < 100) {
+                // Random realistic "stutter" delay
+                let stutterTime = Math.floor(Math.random() * 1500) + 300;
+                setTimeout(runLoadingStutter, stutterTime);
+            } else {
+                // Wait at 100%, then fade out and redirect
+                setTimeout(() => {
+                    body.style.opacity = '0'; // Trigger the CSS transition
+                    setTimeout(() => {
+                        window.location.href = nextURL;
+                    }, 800); // Wait for fade to finish
+                }, 1200);
+            }
+        }
+
+        window.onload = () => {
+            audio.play().catch(() => console.log("Autoplay blocked."));
+            runLoadingStutter();
+        };
+    </script>
+</body>
+</html>
