@@ -16,7 +16,7 @@
             background-color: #ffffff;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             overflow: hidden;
-            transition: opacity 0.8s ease-out; /* For the smooth final fade */
+            transition: opacity 0.8s ease-out; /* For the final fade out */
         }
 
         .container {
@@ -69,7 +69,7 @@
 <body id="page-body">
 
     <audio id="loading-audio" autoplay loop>
-        <source src="LoadingSong.mp3" type="audio/mpeg">
+        <source src="https://www.dropbox.com/scl/fi/4i2mm016rbzpu9k1xq9qj/LoadingSong.mp3?rlkey=r44esa4p2dx1pjik0v0vhpbff&st=ut449auh&dl=1" type="audio/mpeg">
     </audio>
 
     <div class="container">
@@ -88,13 +88,13 @@
         const audio = document.getElementById('loading-audio');
         const body = document.getElementById('page-body');
         
-        // Redirect destination
+        // Target page set to glunky.html
         const nextURL = "glunky.html"; 
         
         let progress = 0;
 
         function runLoadingStutter() {
-            // Randomly jump progress to simulate "loading"
+            // Random jump between 1 and 15%
             let jump = Math.floor(Math.random() * 15) + 1;
             progress += jump;
 
@@ -104,23 +104,22 @@
             percentageText.innerText = progress + '%';
 
             if (progress < 100) {
-                // Random delay between 300ms and 1.8s for the "stutter" effect
+                // Random realistic "stutter" delay
                 let stutterTime = Math.floor(Math.random() * 1500) + 300;
                 setTimeout(runLoadingStutter, stutterTime);
             } else {
-                // Brief pause at 100%, then fade out and redirect
+                // Wait at 100%, then fade out and redirect
                 setTimeout(() => {
-                    body.style.opacity = '0';
+                    body.style.opacity = '0'; // Trigger the CSS transition
                     setTimeout(() => {
                         window.location.href = nextURL;
-                    }, 800);
+                    }, 800); // Wait for fade to finish
                 }, 1200);
             }
         }
 
         window.onload = () => {
-            // Attempt autoplay
-            audio.play().catch(() => console.log("Autoplay blocked by browser."));
+            audio.play().catch(() => console.log("Autoplay blocked."));
             runLoadingStutter();
         };
     </script>
