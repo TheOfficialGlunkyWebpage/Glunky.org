@@ -55,16 +55,22 @@
     </div>
 
     <script>
-        // List of files to pre-fetch into browser cache
+        // Updated with EXACT names from your screenshot
         const assets = [
-            'Esoteric_Penguin.MP4', 'Rhodesia_Edit.MP4', 'MyMy_Edit.MP4', 
-            'Trump_Mussolini_Edit.mp4', 'Glunky1.png', 'Bowden.mp4', 
-            'Kanye.mp4', 'FantasticMrFox.mp4'
+            'Esoteric_Penguin.MP4', 
+            'Rhodesia_Edit.MP4', 
+            'MyMy_Edit.MP4', 
+            'Trump_Mussolini_Edit.mp4', 
+            'Glunky1.png', 
+            'Bowden.mp4', 
+            'Kanye.mp4', 
+            'FantasticMrFox.mp4'
         ];
 
         let loadedCount = 0;
         const progressBar = document.getElementById('progress-bar');
         const percentageText = document.getElementById('percentage-text');
+        const loadedAssets = new Set();
         
         function initiateLoad() {
             document.getElementById('start-container').style.opacity = '0';
@@ -72,10 +78,7 @@
                 document.getElementById('start-container').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
                 document.getElementById('main-content').style.opacity = '1';
-                
-                // Audio starts on user click
                 document.getElementById('loading-audio').play().catch(e => console.log("Audio load error:", e));
-                
                 preloadAssets();
             }, 500);
         }
@@ -88,20 +91,19 @@
                 if (isVideo) {
                     element.src = src;
                     element.preload = 'auto';
-                    // We check for 'canplaythrough' to ensure enough is cached
-                    element.oncanplaythrough = () => assetLoaded();
-                    element.onloadeddata = () => assetLoaded(); // Fallback for some browsers
+                    element.oncanplaythrough = () => assetLoaded(src);
+                    element.onloadeddata = () => assetLoaded(src); 
                 } else {
                     element.src = src;
-                    element.onload = () => assetLoaded();
+                    element.onload = () => assetLoaded(src);
                 }
                 
-                element.onerror = () => assetLoaded(); // Don't hang the bar if a file is missing
+                element.onerror = () => {
+                    console.warn("404 Not Found: " + src);
+                    assetLoaded(src); 
+                };
             });
         }
-
-        // To prevent multiple triggers from the same asset
-        const loadedAssets = new Set();
 
         function assetLoaded(src) {
             if(loadedAssets.has(src)) return;
@@ -110,7 +112,6 @@
             loadedCount++;
             let realProgress = Math.floor((loadedCount / assets.length) * 100);
             
-            // UI Update
             progressBar.style.width = realProgress + '%';
             percentageText.innerText = realProgress + '%';
 
