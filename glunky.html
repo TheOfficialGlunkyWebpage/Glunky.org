@@ -3,66 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Sandbox - GitHub Optimized</title>
+    <title>Media Sandbox - Final Build</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
         body {
-            margin: 0; overflow: hidden; background: #0a0a0a;
-            font-family: 'Inter', sans-serif; width: 100vw; height: 100vh;
+            margin: 0; overflow: hidden; background: #080808;
+            font-family: 'Segoe UI', Roboto, sans-serif; width: 100vw; height: 100vh;
         }
         #controls {
             position: fixed; top: 0; left: 0; width: 100%;
-            padding: 12px; background: rgba(15, 15, 15, 0.95);
+            padding: 12px; background: rgba(10, 10, 10, 0.9);
             display: flex; gap: 8px; z-index: 9999; justify-content: center;
             flex-wrap: wrap; border-bottom: 1px solid #333;
         }
         button {
             padding: 8px 14px; cursor: pointer; border: 1px solid #444;
-            border-radius: 4px; background: #222; color: #eee;
-            font-size: 13px; transition: 0.2s;
+            border-radius: 4px; background: #1a1a1a; color: #eee;
+            font-size: 13px; font-weight: 600; transition: 0.2s;
         }
-        button:hover { background: #333; border-color: #888; }
-        .btn-danger { background: #451a1a; border-color: #632a2a; }
-        .active-delete { background: #ff3e3e !important; color: white; }
+        button:hover { background: #333; border-color: #999; }
+        .btn-danger { background: #3d1414; border-color: #5c2626; }
+        .active-delete { background: #ff3e3e !important; color: white; border-color: #fff; }
 
         .physics-element {
             position: absolute; top: 0; left: 0;
             pointer-events: none !important;
             will-change: transform;
-            /* Forces GPU Rendering to stop stuttering */
             transform-style: preserve-3d;
-            backface-visibility: hidden;
         }
-
-        video {
-            width: 240px;
-            display: block;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        video, img {
+            width: 250px; display: block; border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
-        
-        #start-overlay {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); z-index: 10000;
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 10000;
             display: flex; align-items: center; justify-content: center;
-            color: white; cursor: pointer;
+            color: white; cursor: pointer; text-align: center;
         }
+        body.delete-cursor { cursor: crosshair; }
     </style>
 </head>
 <body>
 
-<div id="start-overlay" onclick="this.remove()">
-    <h1>Click to Initialize Sandbox</h1>
+<div id="overlay" onclick="this.remove()">
+    <h1>Click to Initialize<br><small style="font-size: 0.5em; opacity: 0.7;">(Enables Physics & Audio)</small></h1>
 </div>
 
 <div id="controls">
-    <button onclick="spawn('Esoteric_Penguin.MP4')">Penguin</button>
-    <button onclick="spawn('Rhodesia_Edit.MP4')">Rhodesia</button>
-    <button onclick="spawn('MyMy_Edit.MP4')">MyMy</button>
-    <button onclick="spawn('Trump_Mussolini_Edit.mp4')">Trump</button>
-    <button onclick="spawn('Bowden.mp4')">Bowden</button>
-    <button onclick="spawn('Kanye.mp4')">Kanye</button>
-    <button onclick="spawn('FantasticMrFox.mp4')">Mr. Fox</button>
+    <button onclick="spawn('video', 'Esoteric_Penguin.MP4')">Penguin</button>
+    <button onclick="spawn('video', 'Rhodesia_Edit.MP4')">Rhodesia</button>
+    <button onclick="spawn('video', 'MyMy_Edit.MP4')">MyMy</button>
+    <button onclick="spawn('video', 'Trump_Mussolini_Edit.mp4')">Trump</button>
+    <button onclick="spawn('video', 'Bowden.mp4')">Bowden</button>
+    <button onclick="spawn('video', 'Kanye.mp4')">Kanye</button>
+    <button onclick="spawn('video', 'FantasticMrFox.mp4')">Mr. Fox</button>
+    <button onclick="spawn('photo', 'Glunky1.png')">Glunky</button>
+    
     <button id="deleteBtn" class="btn-danger" onclick="toggleDeleteMode()">Delete Mode: OFF</button>
     <button class="btn-danger" onclick="clearAll()">Clear All</button>
 </div>
@@ -72,13 +69,15 @@
 
     const engine = Engine.create();
     const world = engine.world;
+    engine.gravity.y = 1.0; 
 
-    // Physics Boundaries
-    const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth + 1000, 100, { isStatic: true });
-    const leftWall = Bodies.rectangle(-50, window.innerHeight / 2, 100, window.innerHeight * 5, { isStatic: true });
-    const rightWall = Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, window.innerHeight * 5, { isStatic: true });
+    // Setup Boundaries
+    const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth + 2000, 100, { isStatic: true });
+    const leftWall = Bodies.rectangle(-50, window.innerHeight / 2, 100, window.innerHeight * 10, { isStatic: true });
+    const rightWall = Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, window.innerHeight * 10, { isStatic: true });
     Composite.add(world, [ground, leftWall, rightWall]);
 
+    // Mouse Dragging
     const mouse = Mouse.create(document.body);
     const mouseConstraint = MouseConstraint.create(engine, {
         mouse: mouse,
@@ -94,6 +93,7 @@
         const btn = document.getElementById('deleteBtn');
         btn.innerText = `Delete Mode: ${deleteMode ? 'ON' : 'OFF'}`;
         btn.classList.toggle('active-delete');
+        document.body.classList.toggle('delete-cursor');
     }
 
     function clearAll() {
@@ -101,57 +101,82 @@
         mediaPairs = [];
     }
 
-    function spawn(filename) {
+    async function spawn(type, filename) {
         const el = document.createElement('div');
         el.className = 'physics-element';
-        
-        const v = document.createElement('video');
-        v.src = filename;
-        v.loop = true;
-        v.autoplay = true;
-        v.playsInline = true;
-        v.muted = false;
-        v.preload = "auto"; // CRITICAL for GitHub hosting
+        let media;
 
-        el.appendChild(v);
+        if (type === 'video') {
+            media = document.createElement('video');
+            try {
+                // BYPASS BUFFERING: Download file to local memory
+                const response = await fetch(filename);
+                const blob = await response.blob();
+                media.src = URL.createObjectURL(blob);
+            } catch (e) {
+                // Fallback if fetch fails
+                media.src = filename;
+            }
+            media.loop = true;
+            media.autoplay = true;
+            media.playsInline = true;
+            media.muted = false;
+        } else {
+            media = document.createElement('img');
+            media.src = filename;
+        }
+
+        el.appendChild(media);
         document.body.appendChild(el);
 
-        v.onloadedmetadata = () => {
-            const w = 240;
-            const h = (v.videoHeight / v.videoWidth) * w;
-            const body = Bodies.rectangle(window.innerWidth / 2, -150, w, h, {
-                restitution: 0.5,
+        const onLoaded = () => {
+            const width = 250;
+            const ratio = (type === 'video') ? (media.videoHeight / media.videoWidth) : (media.naturalHeight / media.naturalWidth);
+            const height = ratio * width;
+
+            const body = Bodies.rectangle(window.innerWidth / 2, -200, width, height, {
+                restitution: 0.6, // Bounciness
                 frictionAir: 0,
-                friction: 0.01
+                friction: 0.001
             });
+
             Composite.add(world, body);
-            mediaPairs.push({ body, el, width: w, height: h });
-            v.play().catch(e => console.log("Playback interrupted"));
+            mediaPairs.push({ body, el, width, height });
+            if (type === 'video') media.play();
         };
+
+        if (type === 'video') media.onloadedmetadata = onLoaded;
+        else media.onload = onLoaded;
     }
 
+    // Drag and Delete Logic
     Events.on(mouseConstraint, "mousedown", function() {
         if (deleteMode && mouseConstraint.body && !mouseConstraint.body.isStatic) {
-            const index = mediaPairs.findIndex(p => p.body === mouseConstraint.body);
+            const body = mouseConstraint.body;
+            const index = mediaPairs.findIndex(p => p.body === body);
             if (index > -1) {
                 mediaPairs[index].el.remove();
-                Composite.remove(world, mouseConstraint.body);
+                Composite.remove(world, body);
                 mediaPairs.splice(index, 1);
             }
         }
     });
 
-    (function loop() {
+    // Animation Loop
+    (function frame() {
         mediaPairs.forEach(p => {
             const { x, y } = p.body.position;
-            p.el.style.transform = `translate3d(${x - p.width/2}px, ${y - p.height/2}px, 0) rotate(${p.body.angle}rad)`;
+            const angle = p.body.angle;
+            // Use translate3d for GPU acceleration
+            p.el.style.transform = `translate3d(${x - p.width/2}px, ${y - p.height/2}px, 0) rotate(${angle}rad)`;
         });
         Engine.update(engine);
-        requestAnimationFrame(loop);
+        requestAnimationFrame(frame);
     })();
 
+    // Resize Window Fix
     window.addEventListener('resize', () => {
-        Body.setPosition(ground, { x: window.innerWidth/2, y: window.innerHeight+50 });
+        Body.setPosition(ground, { x: window.innerWidth / 2, y: window.innerHeight + 50 });
     });
 </script>
 </body>
