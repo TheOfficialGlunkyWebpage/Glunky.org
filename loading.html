@@ -45,7 +45,9 @@
         <button id="start-button" onclick="initiateLoad()">Start</button>
     </div>
 
-    <audio id="loading-audio" loop><source src="LoadingSong.mp3" type="audio/mpeg"></audio>
+    <audio id="loading-audio" loop preload="auto">
+        <source src="LoadingSong.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="container" id="main-content">
         <img src="https://uploads.onecompiler.io/446grdp2h/44fseqqbf/GlunkyLoad.gif" class="loading-gif">
@@ -55,30 +57,35 @@
     </div>
 
     <script>
-        // Updated with EXACT names from your screenshot
         const assets = [
-            'Esoteric_Penguin.MP4', 
-            'Rhodesia_Edit.MP4', 
-            'MyMy_Edit.MP4', 
-            'Trump_Mussolini_Edit.mp4', 
-            'Glunky1.png', 
-            'Bowden.mp4', 
-            'Kanye.mp4', 
-            'FantasticMrFox.mp4'
+            'Esoteric_Penguin.MP4', 'Rhodesia_Edit.MP4', 'MyMy_Edit.MP4', 
+            'Trump_Mussolini_Edit.mp4', 'Glunky1.png', 'Bowden.mp4', 
+            'Kanye.mp4', 'FantasticMrFox.mp4'
         ];
 
         let loadedCount = 0;
         const progressBar = document.getElementById('progress-bar');
         const percentageText = document.getElementById('percentage-text');
+        const audio = document.getElementById('loading-audio');
         const loadedAssets = new Set();
-        
+        let startTime;
+
         function initiateLoad() {
+            startTime = Date.now();
             document.getElementById('start-container').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('start-container').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
                 document.getElementById('main-content').style.opacity = '1';
-                document.getElementById('loading-audio').play().catch(e => console.log("Audio load error:", e));
+                
+                // Reset and Force Play
+                audio.currentTime = 0;
+                audio.play().then(() => {
+                    console.log("Audio playing successfully");
+                }).catch(e => {
+                    console.log("Audio play failed:", e);
+                });
+
                 preloadAssets();
             }, 500);
         }
@@ -97,11 +104,7 @@
                     element.src = src;
                     element.onload = () => assetLoaded(src);
                 }
-                
-                element.onerror = () => {
-                    console.warn("404 Not Found: " + src);
-                    assetLoaded(src); 
-                };
+                element.onerror = () => assetLoaded(src);
             });
         }
 
@@ -116,10 +119,17 @@
             percentageText.innerText = realProgress + '%';
 
             if (loadedCount >= assets.length) {
+                // Ensure at least 3 seconds of loading time for the "experience"
+                const elapsedTime = Date.now() - startTime;
+                const minDuration = 3000; 
+                const delay = Math.max(0, minDuration - elapsedTime);
+
                 setTimeout(() => {
                     document.getElementById('page-body').style.opacity = '0';
-                    setTimeout(() => { window.location.href = "glunky.html"; }, 800);
-                }, 1500);
+                    setTimeout(() => { 
+                        window.location.href = "glunky.html"; 
+                    }, 800);
+                }, delay);
             }
         }
     </script>
